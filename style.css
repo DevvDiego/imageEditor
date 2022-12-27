@@ -13,6 +13,32 @@ html,body{
 }
 
 
+#uploadScreen{
+    width: 100%;
+    height: 100vh;
+
+    background-color: goldenrod;
+    color: white;
+
+
+    overflow: hidden;
+
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* #editorScreen{
+    display: none;
+    opacity: 0;
+} */
+
+
+
+
+
 
 #imageSection{
     display: flex;
@@ -43,6 +69,7 @@ html,body{
 
     display: flex;
     flex-flow: row nowrap;
+    /* justify-content: center; */
     align-items: center;
 
     box-shadow: -10px 0px -10px 0px rgb(255, 0, 0);
@@ -76,7 +103,7 @@ html,body{
     transition: 100ms;
 }
 
-#toolSection>button:active,div:active{
+#toolSection>button:active,div:active:not(#editorScreen){
     filter: drop-shadow(1px 5px 8px rgb(244, 134, 134));
 }
 
