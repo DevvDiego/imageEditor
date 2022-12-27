@@ -123,7 +123,6 @@ class PhotoFilters{
     }
 };
 
-
 class MainEditor{
     constructor(img){
         // this.Editorcanvas = document.createElement("canvas");
@@ -136,14 +135,17 @@ class MainEditor{
         this.resizingFactor = 0.2;
 
 
+        this.history = [];
+
+
         this.PhotoFilters = new PhotoFilters();
     }
 
 
     ResizeImage(){
 
-        const originalWidth = this.originalImage.width;
-        const originalHeight = this.originalImage.height;
+        const originalWidth = this.originalImage.width-30;
+        const originalHeight = this.originalImage.height-30;
 
         const canvasWidth = originalWidth * this.resizingFactor;
         const canvasHeight = originalHeight * this.resizingFactor;
@@ -160,13 +162,26 @@ class MainEditor{
         );
     }
 
-    ApplyFilter(){
+    ApplyFilter(type){
 
-        this.PhotoFilters.Inverted();
-        
-        this.PhotoFilters.Inverted();
 
-        
+        switch(type){
+            case "grayscale":
+                this.PhotoFilters.GrayScale();
+                break;
+
+            case "sepia":
+                this.PhotoFilters.Sepia();;
+                break;
+            
+            case "brigthness":
+                this.PhotoFilters.Brightness();;
+                break;
+            default:
+                break;  
+        }
+
+        this.history.push(context.getImageData(0,0,canvas.width,canvas.height));
     }
 
     ReturnImage(){
@@ -174,13 +189,23 @@ class MainEditor{
         return canvas.toDataURL();
 
     }
-    
+
+    Undo(){
+        // Check if there is a previous version of the image in the history stack
+        if (this.history.length > 1) {
+            // Remove the current version of the image from the history stack
+            this.history.pop();
+
+            // Get the previous version of the image from the history stack
+            const imageData = this.history[this.history.length - 1];
+
+             // Update the canvas with the previous version of the image
+            context.putImageData(imageData, 0, 0);
+        }
+    }
 }
 
 
-class UserControls{
-
-}
 
 
 
@@ -190,12 +215,31 @@ const img = new Image();
 img.src = 'casa.jpg';
 const imgDiv = document.getElementById("image");
 
+const Editor = new MainEditor(img);
+
 
 img.onload = ()=>{
-    const Editor = new MainEditor(img);
+
+
+
+
 
     Editor.ResizeImage(0.2);
     Editor.ApplyFilter();
     imgDiv.src = Editor.ReturnImage();
 
 }
+
+const buttons = document.getElementsByClassName("toolFilter")
+for(let i=0; i<buttons.length;i++){
+    buttons[i].addEventListener("click",()=>{
+        Editor.ApplyFilter(buttons[i].value);
+        imgDiv.src = Editor.ReturnImage();
+    })
+
+
+}
+
+document.getElementById("getLastSave").addEventListener("click",()=>{
+    Editor.Undo();
+})
