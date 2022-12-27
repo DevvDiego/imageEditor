@@ -135,8 +135,7 @@ class MainEditor{
         this.resizingFactor = 0.2;
 
 
-        this.history = [];
-
+        this.imageHistory = [];
 
         this.PhotoFilters = new PhotoFilters();
     }
@@ -160,6 +159,12 @@ class MainEditor{
             originalWidth * this.resizingFactor,
             originalHeight * this.resizingFactor
         );
+
+
+
+        //save original image
+        this.imageHistory.push(context.getImageData(0, 0, canvas.width, canvas.height));
+
     }
 
     ApplyFilter(type){
@@ -168,20 +173,37 @@ class MainEditor{
         switch(type){
             case "grayscale":
                 this.PhotoFilters.GrayScale();
+                // Save the filtered version of the image to the history stack
+                this.imageHistory.push(context.getImageData(0, 0, canvas.width, canvas.height));
                 break;
 
             case "sepia":
-                this.PhotoFilters.Sepia();;
+                this.PhotoFilters.Sepia();
+                // Save the filtered version of the image to the history stack
+                this.imageHistory.push(context.getImageData(0, 0, canvas.width, canvas.height));
                 break;
             
             case "brigthness":
-                this.PhotoFilters.Brightness();;
+                this.PhotoFilters.Brightness();
+                // Save the filtered version of the image to the history stack
+                this.imageHistory.push(context.getImageData(0, 0, canvas.width, canvas.height));
                 break;
+
+            case "inverted":
+                this.PhotoFilters.Inverted();
+                // Save the filtered version of the image to the history stack
+                this.imageHistory.push(context.getImageData(0, 0, canvas.width, canvas.height));
+                break;
+
+            case "blur":
+                this.PhotoFilters.Blur();
+                // Save the filtered version of the image to the history stack
+                this.imageHistory.push(context.getImageData(0, 0, canvas.width, canvas.height));
+                break;
+            
             default:
                 break;  
         }
-
-        this.history.push(context.getImageData(0,0,canvas.width,canvas.height));
     }
 
     ReturnImage(){
@@ -190,19 +212,22 @@ class MainEditor{
 
     }
 
-    Undo(){
-        // Check if there is a previous version of the image in the history stack
-        if (this.history.length > 1) {
-            // Remove the current version of the image from the history stack
-            this.history.pop();
-
-            // Get the previous version of the image from the history stack
-            const imageData = this.history[this.history.length - 1];
-
-             // Update the canvas with the previous version of the image
-            context.putImageData(imageData, 0, 0);
+    // Function to undo the last filter
+    Undo() {
+    // Check if there is a previous version of the image in the history stack
+        if (this.imageHistory.length > 1) {
+        // Remove the current version of the image from the history stack
+        this.imageHistory.pop();
+  
+        // Get the previous version of the image from the history stack
+        const imageData = this.imageHistory[this.imageHistory.length - 1];
+  
+        // Update the canvas with the previous version of the image
+        context.putImageData(imageData, 0, 0);
         }
     }
+
+
 }
 
 
@@ -211,35 +236,47 @@ class MainEditor{
 
 
 const img = new Image();
-
-img.src = 'casa.jpg';
-const imgDiv = document.getElementById("image");
+// const FileUploaded = document.getElementById("fileUploadField");
 
 const Editor = new MainEditor(img);
 
+// FileUploaded.addEventListener("change",()=>{
+    
+     img.src = "casa.jpg"// FileUploaded.files[0];
+    const imgDiv = document.getElementById("image");
 
-img.onload = ()=>{
+
+
+
+    img.onload = ()=>{
 
 
 
 
 
-    Editor.ResizeImage(0.2);
-    Editor.ApplyFilter();
-    imgDiv.src = Editor.ReturnImage();
-
-}
-
-const buttons = document.getElementsByClassName("toolFilter")
-for(let i=0; i<buttons.length;i++){
-    buttons[i].addEventListener("click",()=>{
-        Editor.ApplyFilter(buttons[i].value);
+        Editor.ResizeImage(0.2);
+        Editor.ApplyFilter();
         imgDiv.src = Editor.ReturnImage();
-    })
 
 
-}
 
-document.getElementById("getLastSave").addEventListener("click",()=>{
-    Editor.Undo();
-})
+        const buttons = document.getElementsByClassName("toolFilter")
+        for(let i=0; i<buttons.length;i++){
+            buttons[i].addEventListener("click",()=>{
+                Editor.ApplyFilter(buttons[i].value);
+                imgDiv.src = Editor.ReturnImage();
+            })
+
+
+        }
+
+        document.getElementById("getLastSave").addEventListener("click",()=>{
+            Editor.Undo();
+            imgDiv.src = Editor.ReturnImage();
+        })
+
+
+    }
+
+// });
+
